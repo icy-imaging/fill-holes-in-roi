@@ -8,8 +8,10 @@ import java.util.Arrays;
 
 import icy.plugin.abstract_.PluginActionable;
 import icy.roi.BooleanMask2D;
+import icy.roi.BooleanMask3D;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
+import icy.roi.ROI3D;
 import icy.sequence.Sequence;
 import icy.system.IcyHandledException;
 import plugins.adufour.blocks.tools.roi.ROIBlock;
@@ -17,6 +19,7 @@ import plugins.adufour.blocks.util.VarList;
 import plugins.adufour.vars.lang.VarBoolean;
 import plugins.adufour.vars.lang.VarROIArray;
 import plugins.kernel.roi.roi2d.ROI2DArea;
+import plugins.kernel.roi.roi3d.ROI3DArea;
 
 /**
  * Algorithms for filling holes in regions of interest
@@ -94,6 +97,37 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
                     newROI.setC(roiIN.getC());
                     newROI.setZ(roiIN.getZ());
                     newROI.setT(roiIN.getT());
+                    newROI.setSelected(roi.isSelected());
+                    sequence.addROI(newROI);
+                    sequence.removeROI(roi);
+                }
+            }
+            if (roi instanceof ROI3D)
+            {
+                ROI3D roi3d = (ROI3D) (blockMode ? roi.getCopy() : roi);
+
+                BooleanMask3D mask3d = roi3d.getBooleanMask(true);
+                boolean change = fillHoles(mask3d);
+                
+                if (blockMode)
+                {
+                    if (!change)
+                    {
+                        roiOUT.add(roi3d);
+                    }
+                    else
+                    {
+                        ROI3D newROI = new ROI3DArea(mask3d);
+                        newROI.setC(roi3d.getC());
+                        newROI.setT(roi3d.getT());
+                        roiOUT.add(newROI);
+                    }
+                }
+                else if (change)
+                {
+                    ROI3DArea newROI = new ROI3DArea(mask3d);
+                    newROI.setC(roi3d.getC());
+                    newROI.setT(roi3d.getT());
                     newROI.setSelected(roi.isSelected());
                     sequence.addROI(newROI);
                     sequence.removeROI(roi);
@@ -371,6 +405,17 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
                 change = true;
             }
 
+        return change;
+    }
+
+    private static boolean fillHoles(BooleanMask3D mask3d)
+    {
+        boolean change = false;
+        for (int k = 0, z = mask3d.bounds.z; k < mask3d.bounds.sizeZ; k++, z++)
+        {
+            BooleanMask2D mask2d = mask3d.getMask2D(z);
+            change = change || fillHoles(mask2d);
+        }
         return change;
     }
 }
