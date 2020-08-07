@@ -411,10 +411,12 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
     private static boolean fillHoles(BooleanMask3D mask3d)
     {
         boolean change = false;
-        for (int k = 0, z = mask3d.bounds.z; k < mask3d.bounds.sizeZ; k++, z++)
+        int slice = mask3d.bounds.z;
+        for (int k = 0; k < mask3d.bounds.sizeZ; k++)
         {
-            BooleanMask2D mask2d = mask3d.getMask2D(z);
-            change = change || fillHoles(mask2d);
+            BooleanMask2D mask2d = mask3d.getMask2D(slice);
+            change = fillHoles(mask2d) || change;
+            slice++;
         }
         return change;
     }
