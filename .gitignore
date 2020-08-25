@@ -1,2 +1,7 @@
-/bin/
-*.jar
+.idea/
+.settings/
+build/
+target/
+*.iml
+.classpath
+.project
