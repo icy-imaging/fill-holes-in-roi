@@ -168,7 +168,7 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
      * Fill holes in the specified path iterator, and returns the result as a new Path2D. The
      * algorithm extracts all sub-paths of the iterator (i.e. sub-shapes), and computes their
      * algebraic area. Sub-paths with a negative algebraic area represent "holes" in the original
-     * shape and are removed from the final path.<br/>
+     * shape and are removed from the final path.<br>
      * <b>WARNING: Path filling does not work on unions of more than 2 ROI (some holes are not
      * detected due to the way Java AWT merges paths together)</b>
      * 
@@ -269,7 +269,7 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
      * Fill holes in the specified boolean mask. The algorithm extracts the background by flooding
      * from the mask edges, then fills all remaining background pixels (i.e. the holes in the mask)
      * 
-     * @param mask
+     * @param mask boolean mask
      * @return <code>true</code> if the mask has changed, <code>false</code> otherwise (i.e. no hole
      *         was detected)
      */
