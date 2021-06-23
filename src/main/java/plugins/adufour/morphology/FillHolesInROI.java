@@ -12,6 +12,7 @@ import icy.roi.BooleanMask3D;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.roi.ROI3D;
+import icy.roi.ROIUtil;
 import icy.sequence.Sequence;
 import icy.system.IcyHandledException;
 import plugins.adufour.blocks.tools.roi.ROIBlock;
@@ -71,38 +72,33 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
         {
             if (roi instanceof ROI2D)
             {
-                ROI2D roiIN = (ROI2D) (blockMode ? roi.getCopy() : roi);
+                ROI2D roi2d = (ROI2D) (blockMode ? roi.getCopy() : roi);
 
-                BooleanMask2D mask = roiIN.getBooleanMask(true);
+                BooleanMask2D mask = roi2d.getBooleanMask(true);
                 boolean change = fillHoles(mask);
 
                 if (blockMode)
                 {
                     if (!change)
                     {
-                        roiOUT.add(roiIN);
+                        roiOUT.add(roi2d);
                     }
                     else
                     {
                         ROI2D newROI = new ROI2DArea(mask);
-                        newROI.setC(roiIN.getC());
-                        newROI.setZ(roiIN.getZ());
-                        newROI.setT(roiIN.getT());
+                        ROIUtil.copyROIProperties(roi2d, newROI, true);
                         roiOUT.add(newROI);
                     }
                 }
                 else if (change)
                 {
                     ROI2DArea newROI = new ROI2DArea(mask);
-                    newROI.setC(roiIN.getC());
-                    newROI.setZ(roiIN.getZ());
-                    newROI.setT(roiIN.getT());
-                    newROI.setSelected(roi.isSelected());
+                    ROIUtil.copyROIProperties(roi2d, newROI, true);
                     sequence.addROI(newROI);
                     sequence.removeROI(roi);
                 }
             }
-            if (roi instanceof ROI3D)
+            else if (roi instanceof ROI3D)
             {
                 ROI3D roi3d = (ROI3D) (blockMode ? roi.getCopy() : roi);
 
@@ -118,47 +114,18 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
                     else
                     {
                         ROI3D newROI = new ROI3DArea(mask3d);
-                        newROI.setC(roi3d.getC());
-                        newROI.setT(roi3d.getT());
+                        ROIUtil.copyROIProperties(roi3d, newROI, true);
                         roiOUT.add(newROI);
                     }
                 }
                 else if (change)
                 {
                     ROI3DArea newROI = new ROI3DArea(mask3d);
-                    newROI.setC(roi3d.getC());
-                    newROI.setT(roi3d.getT());
-                    newROI.setSelected(roi.isSelected());
+                    ROIUtil.copyROIProperties(roi3d, newROI, true);
                     sequence.addROI(newROI);
                     sequence.removeROI(roi);
                 }
             }
-            // NOTE: Shape filling by path analysis does not work on unions of more than 2 ROI
-
-            // else if (roi instanceof ROI2DShape)
-            // {
-            // ROI2DShape initialShape = (ROI2DShape) roi;
-            //
-            // VarBoolean change = new VarBoolean("path changed", false);
-            //
-            // Path2D filledPath = fillPath(initialShape.getPathIterator(null), change);
-            //
-            // if (filledPath != null)
-            // {
-            // ROI2DShape filledShape = new ROI2DPath(filledPath);
-            //
-            // if (blockMode)
-            // {
-            // roiOUT.add(filledShape);
-            // }
-            // else if (change.getValue())
-            // {
-            // sequence.removeROI(initialShape);
-            // sequence.addROI(filledShape);
-            // filledShape.setSelected(initialShape.isSelected(), false);
-            // }
-            // }
-            // }
             else if (blockMode)
                 roiOUT.add(roi);
         }
