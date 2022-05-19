@@ -68,66 +68,73 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
             rois = sequence.getROIs();
         }
 
-        for (ROI roi : rois)
+        try
         {
-            if (roi instanceof ROI2D)
+            for (ROI roi : rois)
             {
-                ROI2D roi2d = (ROI2D) (blockMode ? roi.getCopy() : roi);
-
-                BooleanMask2D mask = roi2d.getBooleanMask(true);
-                boolean change = fillHoles(mask);
-
-                if (blockMode)
+                if (roi instanceof ROI2D)
                 {
-                    if (!change)
+                    ROI2D roi2d = (ROI2D) (blockMode ? roi.getCopy() : roi);
+
+                    BooleanMask2D mask = roi2d.getBooleanMask(true);
+                    boolean change = fillHoles(mask);
+
+                    if (blockMode)
                     {
-                        roiOUT.add(roi2d);
+                        if (!change)
+                        {
+                            roiOUT.add(roi2d);
+                        }
+                        else
+                        {
+                            ROI2D newROI = new ROI2DArea(mask);
+                            ROIUtil.copyROIProperties(roi2d, newROI, true);
+                            roiOUT.add(newROI);
+                        }
                     }
-                    else
+                    else if (change)
                     {
-                        ROI2D newROI = new ROI2DArea(mask);
+                        ROI2DArea newROI = new ROI2DArea(mask);
                         ROIUtil.copyROIProperties(roi2d, newROI, true);
-                        roiOUT.add(newROI);
+                        sequence.addROI(newROI);
+                        sequence.removeROI(roi);
                     }
                 }
-                else if (change)
+                else if (roi instanceof ROI3D)
                 {
-                    ROI2DArea newROI = new ROI2DArea(mask);
-                    ROIUtil.copyROIProperties(roi2d, newROI, true);
-                    sequence.addROI(newROI);
-                    sequence.removeROI(roi);
-                }
-            }
-            else if (roi instanceof ROI3D)
-            {
-                ROI3D roi3d = (ROI3D) (blockMode ? roi.getCopy() : roi);
+                    ROI3D roi3d = (ROI3D) (blockMode ? roi.getCopy() : roi);
 
-                BooleanMask3D mask3d = roi3d.getBooleanMask(true);
-                boolean change = fillHoles(mask3d);
-                
-                if (blockMode)
-                {
-                    if (!change)
+                    BooleanMask3D mask3d = roi3d.getBooleanMask(true);
+                    boolean change = fillHoles(mask3d);
+
+                    if (blockMode)
                     {
-                        roiOUT.add(roi3d);
+                        if (!change)
+                        {
+                            roiOUT.add(roi3d);
+                        }
+                        else
+                        {
+                            ROI3D newROI = new ROI3DArea(mask3d);
+                            ROIUtil.copyROIProperties(roi3d, newROI, true);
+                            roiOUT.add(newROI);
+                        }
                     }
-                    else
+                    else if (change)
                     {
-                        ROI3D newROI = new ROI3DArea(mask3d);
+                        ROI3DArea newROI = new ROI3DArea(mask3d);
                         ROIUtil.copyROIProperties(roi3d, newROI, true);
-                        roiOUT.add(newROI);
+                        sequence.addROI(newROI);
+                        sequence.removeROI(roi);
                     }
                 }
-                else if (change)
-                {
-                    ROI3DArea newROI = new ROI3DArea(mask3d);
-                    ROIUtil.copyROIProperties(roi3d, newROI, true);
-                    sequence.addROI(newROI);
-                    sequence.removeROI(roi);
-                }
+                else if (blockMode)
+                    roiOUT.add(roi);
             }
-            else if (blockMode)
-                roiOUT.add(roi);
+        }
+        catch (InterruptedException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 
@@ -236,7 +243,8 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
      * Fill holes in the specified boolean mask. The algorithm extracts the background by flooding
      * from the mask edges, then fills all remaining background pixels (i.e. the holes in the mask)
      * 
-     * @param mask boolean mask
+     * @param mask
+     *        boolean mask
      * @return <code>true</code> if the mask has changed, <code>false</code> otherwise (i.e. no hole
      *         was detected)
      */
