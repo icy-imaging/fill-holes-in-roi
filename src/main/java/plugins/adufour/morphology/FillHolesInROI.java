@@ -24,116 +24,100 @@ import plugins.kernel.roi.roi3d.ROI3DArea;
 
 /**
  * Algorithms for filling holes in regions of interest
- * 
+ *
  * @author Alexandre Dufour
  */
-public class FillHolesInROI extends PluginActionable implements ROIBlock
-{
+public class FillHolesInROI extends PluginActionable implements ROIBlock {
     private boolean blockMode = false;
 
-    private VarROIArray roiIN = new VarROIArray("List of ROI");
+    private final VarROIArray roiIN = new VarROIArray("List of ROI");
 
-    private VarROIArray roiOUT = new VarROIArray("List of hole-filled ROI");
+    private final VarROIArray roiOUT = new VarROIArray("List of hole-filled ROI");
 
     @Override
-    public void declareInput(VarList inputMap)
-    {
+    public void declareInput(VarList inputMap) {
         blockMode = true;
         inputMap.add("List of ROI", roiIN);
     }
 
     @Override
-    public void declareOutput(VarList outputMap)
-    {
+    public void declareOutput(VarList outputMap) {
         outputMap.add("List of hole-filled ROI", roiOUT);
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         roiOUT.setValue(new ROI[0]);
 
         Sequence sequence = null;
-        Iterable<ROI> rois = null;
+        Iterable<ROI> rois;
 
-        if (blockMode)
-        {
+        if (blockMode) {
             rois = Arrays.asList(roiIN.getValue());
         }
-        else
-        {
+        else {
             sequence = getActiveSequence();
             if (sequence == null)
                 throw new IcyHandledException("Fill holes in ROI: please open an image first.");
             rois = sequence.getROIs();
         }
 
-        try
-        {
-            for (ROI roi : rois)
-            {
-                if (roi instanceof ROI2D)
-                {
+        try {
+            for (ROI roi : rois) {
+                if (roi instanceof ROI2D) {
                     ROI2D roi2d = (ROI2D) (blockMode ? roi.getCopy() : roi);
 
                     BooleanMask2D mask = roi2d.getBooleanMask(true);
                     boolean change = fillHoles(mask);
 
-                    if (blockMode)
-                    {
-                        if (!change)
-                        {
+                    if (blockMode) {
+                        if (!change) {
                             roiOUT.add(roi2d);
                         }
-                        else
-                        {
+                        else {
                             ROI2D newROI = new ROI2DArea(mask);
                             ROIUtil.copyROIProperties(roi2d, newROI, true);
                             roiOUT.add(newROI);
                         }
                     }
-                    else if (change)
-                    {
+                    else if (change) {
                         ROI2DArea newROI = new ROI2DArea(mask);
                         ROIUtil.copyROIProperties(roi2d, newROI, true);
-                        sequence.addROI(newROI);
-                        sequence.removeROI(roi);
+                        if (sequence != null) {
+                            sequence.addROI(newROI);
+                            sequence.removeROI(roi);
+                        }
                     }
                 }
-                else if (roi instanceof ROI3D)
-                {
+                else if (roi instanceof ROI3D) {
                     ROI3D roi3d = (ROI3D) (blockMode ? roi.getCopy() : roi);
 
                     BooleanMask3D mask3d = roi3d.getBooleanMask(true);
                     boolean change = fillHoles(mask3d);
 
-                    if (blockMode)
-                    {
-                        if (!change)
-                        {
+                    if (blockMode) {
+                        if (!change) {
                             roiOUT.add(roi3d);
                         }
-                        else
-                        {
+                        else {
                             ROI3D newROI = new ROI3DArea(mask3d);
                             ROIUtil.copyROIProperties(roi3d, newROI, true);
                             roiOUT.add(newROI);
                         }
                     }
-                    else if (change)
-                    {
+                    else if (change) {
                         ROI3DArea newROI = new ROI3DArea(mask3d);
                         ROIUtil.copyROIProperties(roi3d, newROI, true);
-                        sequence.addROI(newROI);
-                        sequence.removeROI(roi);
+                        if (sequence != null) {
+                            sequence.addROI(newROI);
+                            sequence.removeROI(roi);
+                        }
                     }
                 }
                 else if (blockMode)
                     roiOUT.add(roi);
             }
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -145,18 +129,15 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
      * shape and are removed from the final path.<br>
      * <b>WARNING: Path filling does not work on unions of more than 2 ROI (some holes are not
      * detected due to the way Java AWT merges paths together)</b>
-     * 
-     * @param path
-     *        a {@link PathIterator} object to browse
-     * @param pathChanged
-     *        an optional boolean variable that indicates whether the input and output paths are
-     *        different when the method returns (set to <code>null</code> if not necessary)
+     *
+     * @param path        a {@link PathIterator} object to browse
+     * @param pathChanged an optional boolean variable that indicates whether the input and output paths are
+     *                    different when the method returns (set to <code>null</code> if not necessary)
      * @return a new {@link Path2D} object with no holes (or null if the path is empty). Note that
-     *         the returned path may still comprise multiple sub-paths, but each of the sub-paths is
-     *         guaranteed to have no holes.
+     * the returned path may still comprise multiple sub-paths, but each of the sub-paths is
+     * guaranteed to have no holes.
      */
-    public static Path2D fillPath(PathIterator path, VarBoolean pathChanged)
-    {
+    public static Path2D fillPath(PathIterator path, VarBoolean pathChanged) {
         if (pathChanged != null)
             pathChanged.setValue(false);
 
@@ -165,20 +146,19 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
 
         double[] coords = new double[6];
 
-        ArrayList<ArrayList<Point2D.Double>> segments = new ArrayList<ArrayList<Point2D.Double>>();
+        //ArrayList<ArrayList<Point2D.Double>> segments = new ArrayList<>();
 
         ArrayList<Point2D.Double> currentSegment = null;
         Path2D currentPath = null;
 
-        while (!path.isDone())
-        {
+        while (!path.isDone()) {
             int segment = path.currentSegment(coords);
 
-            switch (segment)
-            {
+            switch (segment) {
                 case PathIterator.SEG_MOVETO:
 
-                    segments.add(currentSegment = new ArrayList<Point2D.Double>());
+                    //segments.add(currentSegment = new ArrayList<>());
+                    currentSegment = new ArrayList<>();
 
                     currentSegment.add(new Point2D.Double(coords[0], coords[1]));
                     currentPath = new Path2D.Double();
@@ -186,51 +166,55 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
 
                     break;
                 case PathIterator.SEG_CLOSE:
+                    if (currentSegment != null) {
+                        currentPath.closePath();
 
-                    currentPath.closePath();
+                        System.out.print(currentSegment.size() + " points: algebraic area is ");
 
-                    System.out.print(currentSegment.size() + " points: algebraic area is ");
+                        // calculate algebraic area
+                        int nm1 = currentSegment.size() - 1;
 
-                    // calculate algebraic area
-                    int nm1 = currentSegment.size() - 1;
+                        double area = 0;
 
-                    double area = 0;
+                        // all points but the last
+                        for (int i = 0; i < nm1; i++) {
+                            Point2D.Double p1 = currentSegment.get(i);
+                            Point2D.Double p2 = currentSegment.get(i + 1);
+                            area += (p2.x * p1.y - p1.x * p2.y) * 0.5;
+                        }
 
-                    // all points but the last
-                    for (int i = 0; i < nm1; i++)
-                    {
-                        Point2D.Double p1 = currentSegment.get(i);
-                        Point2D.Double p2 = currentSegment.get(i + 1);
+                        // last point
+                        Point2D.Double p1 = currentSegment.get(nm1);
+                        Point2D.Double p2 = currentSegment.get(0);
                         area += (p2.x * p1.y - p1.x * p2.y) * 0.5;
+
+                        System.out.println(area > 0 ? "positive, keeping" : "negative, discarding");
+                        if (area > 0) {
+                            // flush the current path
+                            filledPath.append(currentPath, false);
+                            isPathEmpty = false;
+                        }
+                        else if (pathChanged != null)
+                            pathChanged.setValue(true);
                     }
-
-                    // last point
-                    Point2D.Double p1 = currentSegment.get(nm1);
-                    Point2D.Double p2 = currentSegment.get(0);
-                    area += (p2.x * p1.y - p1.x * p2.y) * 0.5;
-
-                    System.out.println(area > 0 ? "positive, keeping" : "negative, discarding");
-                    if (area > 0)
-                    {
-                        // flush the current path
-                        filledPath.append(currentPath, false);
-                        isPathEmpty = false;
-                    }
-                    else if (pathChanged != null)
-                        pathChanged.setValue(true);
-
                     break;
                 case PathIterator.SEG_CUBICTO:
-                    currentSegment.add(new Point2D.Double(coords[4], coords[5]));
-                    currentPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                    if (currentSegment != null) {
+                        currentSegment.add(new Point2D.Double(coords[4], coords[5]));
+                        currentPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                    }
                     break;
                 case PathIterator.SEG_LINETO:
-                    currentSegment.add(new Point2D.Double(coords[0], coords[1]));
-                    currentPath.lineTo(coords[0], coords[1]);
+                    if (currentSegment != null) {
+                        currentSegment.add(new Point2D.Double(coords[0], coords[1]));
+                        currentPath.lineTo(coords[0], coords[1]);
+                    }
                     break;
                 case PathIterator.SEG_QUADTO:
-                    currentSegment.add(new Point2D.Double(coords[2], coords[3]));
-                    currentPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
+                    if (currentSegment != null) {
+                        currentSegment.add(new Point2D.Double(coords[2], coords[3]));
+                        currentPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
+                    }
                     break;
             }
             path.next();
@@ -242,14 +226,12 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
     /**
      * Fill holes in the specified boolean mask. The algorithm extracts the background by flooding
      * from the mask edges, then fills all remaining background pixels (i.e. the holes in the mask)
-     * 
-     * @param mask
-     *        boolean mask
+     *
+     * @param mask boolean mask
      * @return <code>true</code> if the mask has changed, <code>false</code> otherwise (i.e. no hole
-     *         was detected)
+     * was detected)
      */
-    public static boolean fillHoles(BooleanMask2D mask)
-    {
+    public static boolean fillHoles(BooleanMask2D mask) {
         int width = mask.bounds.width;
         int height = mask.bounds.height;
 
@@ -274,27 +256,22 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
         // 1) extract background pixels on the image edges
 
         // 1.a) top + bottom edges
-        for (int top = 0, bottom = slice - width; top < width; top++, bottom++)
-        {
-            if (!isObject[top])
-            {
+        for (int top = 0, bottom = slice - width; top < width; top++, bottom++) {
+            if (!isObject[top]) {
                 labels[top] = BACKGROUND;
 
                 int neighbor = top + width;
-                if (labels[neighbor] == UNKNOWN)
-                {
+                if (labels[neighbor] == UNKNOWN) {
                     pixelOffsetsToVisit[n++] = neighbor;
                     labels[neighbor] = TO_VISIT;
                 }
             }
 
-            if (!isObject[bottom])
-            {
+            if (!isObject[bottom]) {
                 labels[bottom] = BACKGROUND;
 
                 int neighbor = bottom - width;
-                if (labels[neighbor] == UNKNOWN)
-                {
+                if (labels[neighbor] == UNKNOWN) {
                     pixelOffsetsToVisit[n++] = neighbor;
                     labels[neighbor] = TO_VISIT;
                 }
@@ -302,27 +279,22 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
         }
 
         // 1.b) left + right edges (minus the corners, done above)
-        for (int left = width, right = 2 * width - 1; left < slice - width; left += width, right += width)
-        {
-            if (!isObject[left])
-            {
+        for (int left = width, right = 2 * width - 1; left < slice - width; left += width, right += width) {
+            if (!isObject[left]) {
                 labels[left] = BACKGROUND;
 
                 int neighbor = left + 1;
-                if (labels[neighbor] == UNKNOWN)
-                {
+                if (labels[neighbor] == UNKNOWN) {
                     pixelOffsetsToVisit[n++] = neighbor;
                     labels[neighbor] = TO_VISIT;
                 }
             }
 
-            if (!isObject[right])
-            {
+            if (!isObject[right]) {
                 labels[right] = BACKGROUND;
 
                 int neighbor = right - 1;
-                if (labels[neighbor] == UNKNOWN)
-                {
+                if (labels[neighbor] == UNKNOWN) {
                     pixelOffsetsToVisit[n++] = neighbor;
                     labels[neighbor] = TO_VISIT;
                 }
@@ -330,14 +302,12 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
         }
 
         // process only if there is something to process...
-        if (n > 0)
-        {
+        if (n > 0) {
             // 2) flood the image from the list of (background) border pixels
 
             int[] neighbors = new int[4];
 
-            for (int index = 0; index < n; index++)
-            {
+            for (int index = 0; index < n; index++) {
                 int offset = pixelOffsetsToVisit[index];
 
                 // if the current pixel is already tagged 'background'
@@ -347,8 +317,7 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
                     continue;
 
                 // if background => flood
-                if (!isObject[offset])
-                {
+                if (!isObject[offset]) {
                     // tag the current pixel
                     labels[offset] = BACKGROUND;
 
@@ -360,8 +329,7 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
 
                     // and add its immediate neighbor to the list of pixels to visit
                     for (int neighbor : neighbors)
-                        if (labels[neighbor] == UNKNOWN && !isObject[neighbor])
-                        {
+                        if (labels[neighbor] == UNKNOWN && !isObject[neighbor]) {
                             pixelOffsetsToVisit[n++] = neighbor;
                             labels[neighbor] = TO_VISIT;
                         }
@@ -374,8 +342,7 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
         boolean change = false;
 
         for (int i = 0; i < slice; i++)
-            if (labels[i] == UNKNOWN && !isObject[i])
-            {
+            if (labels[i] == UNKNOWN && !isObject[i]) {
                 isObject[i] = true;
                 change = true;
             }
@@ -383,12 +350,10 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock
         return change;
     }
 
-    private static boolean fillHoles(BooleanMask3D mask3d)
-    {
+    private static boolean fillHoles(BooleanMask3D mask3d) {
         boolean change = false;
         int slice = mask3d.bounds.z;
-        for (int k = 0; k < mask3d.bounds.sizeZ; k++)
-        {
+        for (int k = 0; k < mask3d.bounds.sizeZ; k++) {
             BooleanMask2D mask2d = mask3d.getMask2D(slice);
             change = fillHoles(mask2d) || change;
             slice++;

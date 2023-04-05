@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>org.bioimageanalysis.icy</groupId>
-        <artifactId>parent-pom-plugin</artifactId>
-        <version>1.0.8</version>
+        <artifactId>pom-icy</artifactId>
+        <version>2.2.0</version>
     </parent>
 
     <artifactId>fill-holes-in-roi</artifactId>
-    <version>1.3.3</version>
+    <version>1.3.4</version>
 
     <packaging>jar</packaging>
 
@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>org.bioimageanalysis.icy</groupId>
-            <artifactId>blocks</artifactId>
+            <artifactId>protocols</artifactId>
         </dependency>
     </dependencies>
 
