@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2023. Institut Pasteur.
+ * Copyright (c) 2010-2024. Institut Pasteur.
  *
  * This file is part of Icy.
  * Icy is free software: you can redistribute it and/or modify
@@ -18,16 +18,23 @@
 
 package plugins.adufour.morphology;
 
-import icy.plugin.abstract_.PluginActionable;
-import icy.roi.*;
-import icy.sequence.Sequence;
-import icy.system.IcyHandledException;
+import org.bioimageanalysis.extension.kernel.roi.roi2d.ROI2DArea;
+import org.bioimageanalysis.extension.kernel.roi.roi3d.ROI3DArea;
+import org.bioimageanalysis.icy.extension.plugin.abstract_.PluginActionable;
+import org.bioimageanalysis.icy.extension.plugin.annotation_.IcyPluginIcon;
+import org.bioimageanalysis.icy.extension.plugin.annotation_.IcyPluginName;
+import org.bioimageanalysis.icy.model.roi.ROI;
+import org.bioimageanalysis.icy.model.roi.ROI2D;
+import org.bioimageanalysis.icy.model.roi.ROI3D;
+import org.bioimageanalysis.icy.model.roi.ROIUtil;
+import org.bioimageanalysis.icy.model.roi.mask.BooleanMask2D;
+import org.bioimageanalysis.icy.model.roi.mask.BooleanMask3D;
+import org.bioimageanalysis.icy.model.sequence.Sequence;
+import org.bioimageanalysis.icy.system.IcyHandledException;
 import plugins.adufour.blocks.tools.roi.ROIBlock;
 import plugins.adufour.blocks.util.VarList;
 import plugins.adufour.vars.lang.VarBoolean;
 import plugins.adufour.vars.lang.VarROIArray;
-import plugins.kernel.roi.roi2d.ROI2DArea;
-import plugins.kernel.roi.roi3d.ROI3DArea;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -40,6 +47,8 @@ import java.util.Arrays;
  *
  * @author Alexandre Dufour
  */
+@IcyPluginName("Fill Holes in ROI")
+@IcyPluginIcon(path = "/icon-fill-holes-in-roi.png")
 public class FillHolesInROI extends PluginActionable implements ROIBlock {
     private boolean blockMode = false;
 
