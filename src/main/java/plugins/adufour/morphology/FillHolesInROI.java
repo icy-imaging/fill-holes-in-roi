@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2024. Institut Pasteur.
+ * Copyright (c) 2010-2026. Institut Pasteur.
  *
  * This file is part of Icy.
  * Icy is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@ package plugins.adufour.morphology;
 import org.bioimageanalysis.extension.kernel.roi.roi2d.ROI2DArea;
 import org.bioimageanalysis.extension.kernel.roi.roi3d.ROI3DArea;
 import org.bioimageanalysis.icy.extension.plugin.abstract_.PluginActionable;
-import org.bioimageanalysis.icy.extension.plugin.annotation_.IcyPluginIcon;
 import org.bioimageanalysis.icy.extension.plugin.annotation_.IcyPluginName;
 import org.bioimageanalysis.icy.model.roi.ROI;
 import org.bioimageanalysis.icy.model.roi.ROI2D;
@@ -48,7 +47,6 @@ import java.util.Arrays;
  * @author Alexandre Dufour
  */
 @IcyPluginName("Fill Holes in ROI")
-@IcyPluginIcon(path = "/icon-fill-holes-in-roi.png")
 public class FillHolesInROI extends PluginActionable implements ROIBlock {
     private boolean blockMode = false;
 
