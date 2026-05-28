@@ -18,18 +18,18 @@
 
 package plugins.adufour.morphology;
 
-import org.bioimageanalysis.extension.kernel.roi.roi2d.ROI2DArea;
-import org.bioimageanalysis.extension.kernel.roi.roi3d.ROI3DArea;
-import org.bioimageanalysis.icy.extension.plugin.abstract_.PluginActionable;
-import org.bioimageanalysis.icy.extension.plugin.annotation_.IcyPluginName;
-import org.bioimageanalysis.icy.model.roi.ROI;
-import org.bioimageanalysis.icy.model.roi.ROI2D;
-import org.bioimageanalysis.icy.model.roi.ROI3D;
-import org.bioimageanalysis.icy.model.roi.ROIUtil;
-import org.bioimageanalysis.icy.model.roi.mask.BooleanMask2D;
-import org.bioimageanalysis.icy.model.roi.mask.BooleanMask3D;
-import org.bioimageanalysis.icy.model.sequence.Sequence;
-import org.bioimageanalysis.icy.system.IcyHandledException;
+import fr.icy.extension.kernel.roi.roi2d.ROI2DArea;
+import fr.icy.extension.kernel.roi.roi3d.ROI3DArea;
+import fr.icy.extension.plugin.abstract_.PluginActionable;
+import fr.icy.extension.plugin.annotation_.IcyPluginName;
+import fr.icy.model.roi.ROI;
+import fr.icy.model.roi.ROI2D;
+import fr.icy.model.roi.ROI3D;
+import fr.icy.model.roi.ROIUtil;
+import fr.icy.model.roi.mask.BooleanMask2D;
+import fr.icy.model.roi.mask.BooleanMask3D;
+import fr.icy.model.sequence.Sequence;
+import fr.icy.system.IcyHandledException;
 import plugins.adufour.blocks.tools.roi.ROIBlock;
 import plugins.adufour.blocks.util.VarList;
 import plugins.adufour.vars.lang.VarBoolean;
