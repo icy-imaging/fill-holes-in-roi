@@ -40,6 +40,8 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Algorithms for filling holes in regions of interest
@@ -48,6 +50,8 @@ import java.util.Arrays;
  */
 @IcyPluginName("Fill Holes in ROI")
 public class FillHolesInROI extends PluginActionable implements ROIBlock {
+    private static final Logger LOGGER = Logger.getLogger(FillHolesInROI.class.getName());
+
     private boolean blockMode = false;
 
     private final VarROIArray roiIN = new VarROIArray("List of ROI");
@@ -190,7 +194,8 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock {
                     if (currentSegment != null) {
                         currentPath.closePath();
 
-                        System.out.print(currentSegment.size() + " points: algebraic area is ");
+                        if (LOGGER.isLoggable(Level.INFO))
+                            LOGGER.log(Level.INFO, currentSegment.size() + " points: algebraic area is…");
 
                         // calculate algebraic area
                         final int nm1 = currentSegment.size() - 1;
@@ -209,7 +214,8 @@ public class FillHolesInROI extends PluginActionable implements ROIBlock {
                         final Point2D.Double p2 = currentSegment.get(0);
                         area += (p2.x * p1.y - p1.x * p2.y) * 0.5;
 
-                        System.out.println(area > 0 ? "positive, keeping" : "negative, discarding");
+                        if (LOGGER.isLoggable(Level.INFO))
+                            LOGGER.log(Level.INFO, area > 0 ? "…positive, keeping." : "…negative, discarding.");
                         if (area > 0) {
                             // flush the current path
                             filledPath.append(currentPath, false);

@@ -7,16 +7,16 @@
     <parent>
         <groupId>fr.icy</groupId>
         <artifactId>pom-icy</artifactId>
-        <version>3.0.0-a.7</version>
+        <version>3.0.0-a.8-SNAPSHOT</version>
     </parent>
 
-    <groupId>fr.icy.extensions</groupId>
+    <groupId>fr.icy.extension</groupId>
     <artifactId>fill-holes-in-roi</artifactId>
-    <version>2.0.0-a.7</version>
+    <version>2.0.0-a.8-SNAPSHOT</version>
 
-    <name>Fill holes in ROI</name>
-    <description>Fills the holes in all the ROI of the active sequence (also works in Protocols).</description>
-    <url>https://icy.bioimageanalysis.org/</url>
+    <name>Fill Holes in ROI</name>
+    <description>Fills the holes in all the ROI of the active sequence</description>
+    <url>http://icy.fr/</url>
     <inceptionYear>2013</inceptionYear>
 
     <scm>
@@ -59,12 +59,13 @@
     <contributors>
         <contributor>
             <name>Alexandre Dufour</name>
-            <roles>
-                <role>founder</role>
-            </roles>
         </contributor>
         <contributor>
             <name>Stéphane Dallongeville</name>
+        </contributor>
+        <contributor>
+            <name>Thomas Musset</name>
+            <properties><id>Azargas</id></properties>
         </contributor>
     </contributors>
 
@@ -82,19 +83,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>fr.icy.extensions</groupId>
+            <groupId>fr.icy.extension</groupId>
             <artifactId>kernel</artifactId>
-            <version>${fr.icy.extensions.kernel.version}</version>
+            <version>${fr.icy.extension.kernel.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.icy.extensions</groupId>
+            <groupId>fr.icy.extension</groupId>
             <artifactId>ezplug</artifactId>
-            <version>${fr.icy.extensions.ezplug.version}</version>
+            <version>${fr.icy.extension.ezplug.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.icy.extensions</groupId>
+            <groupId>fr.icy.extension</groupId>
             <artifactId>protocols</artifactId>
-            <version>${fr.icy.extensions.protocols.version}</version>
+            <version>${fr.icy.extension.protocols.version}</version>
         </dependency>
     </dependencies>
 </project>
